@@ -1,0 +1,87 @@
+name: dynev4eo_gpu
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  # Standard Libraries
+  # ! The new numpy release breaks things... clamping this down for now
+  - numpy<=1.26.4 # Numerical Linear Algebra
+  - scipy # Scientific Computing
+  - xarray # Data structures
+  - scikit-learn # Machine Learning
+  - statsmodels
+  - scikit-image
+  - pandas<=2.1.0
+  - geopandas
+  - zarr
+  - netcdf4
+  - pint-xarray
+  - regionmask
+  # Plotting Libraries
+  - matplotlib # standard plotting library
+  - seaborn # Stats viz library
+  - cartopy
+  # CUDA Specifics
+  - cuda-libraries # this is the cuda metapackage
+  - cudnn # this is specifically for cudnn
+  - cuda-nvcc # ensures that a compatible nvidia C compiler is available!
+  - jaxlib
+  - cuda-version # necessary for pulling in packages that are CUDA12-compatible!
+  - jax==0.4.26
+  # Necessary Packages for the GDAL and stuff
+  - gcc
+  - gxx
+  - gxx_linux-64==11.1.0
+  - boost
+  - libboost-devel
+  - eigen
+  - cmake
+  - libstdcxx-ng
+  # GUI
+  - ipython
+  - ipywidgets
+  - ipykernel
+  - tqdm
+  - pip
+  - pip:
+      # Jax framework
+      - equinox
+      - jaxtyping
+      # MATHEMATICS
+      - einops
+      - einx
+      # Visualization 
+      # TODO: Fix this once they have their new release
+      # https://github.com/arviz-devs/arviz/issues/2336
+      - "git+https://github.com/arviz-devs/arviz"
+      # optimization
+      - optax
+      # probabilistic
+      - numpyro
+      - tinygp
+      - diffrax
+      - "tfp-nightly[jax]"
+      # formatting
+      - black
+      - pylint
+      - isort
+      - flake8
+      - mypy
+      - pytest
+      - pre-commit
+      - rich
+      - sh
+      - pudb
+      # Notebook stuff
+      - pyprojroot
+      - autoroot
+      - python-dotenv
+      - typer
+      # logging
+      - wandb
+      - loguru
+      - hydra-core
+      - hydra-zen
+      # plotting
+      - celluloid
+      - corner
