@@ -76,9 +76,9 @@ class SVILearner(eqx.Module):
         self.optimizer = numpyro.optim.ClippedAdam(step_size=self.step_size, clip_norm=self.clip_norm)
 
         # initialize guide
-        if method == "delta":
+        if method.lower() in ["delta", "map"]:
             self.guide = AutoDelta(self.model)
-        elif method == "laplace":
+        elif method.lower() == "laplace":
             self.guide = AutoLaplaceApproximation(self.model)
         else:
             raise ValueError(f"Unrecognized method: {method}")
