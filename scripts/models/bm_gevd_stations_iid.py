@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0" # first gpu
+os.environ["CUDA_VISIBLE_DEVICES"] = "" # first gpu
 os.environ['XLA_PYTHON_CLIENT_PREALLOCATE'] = 'FALSE'
 
 import numpyro
@@ -126,6 +126,8 @@ def run_experiment(seed: int=123):
         
         figures_save_paths.make_dir()
         fig_save_path = figures_save_paths.full_path
+        
+        pbar.set_description(f"Figure Save Path: {fig_save_path}")
 
         # block maximum
         pbar.set_description(f"Station ID: {istation_id} | Calculating BM...")
@@ -137,7 +139,7 @@ def run_experiment(seed: int=123):
         plot_histogram_station(ds_bm, fig_save_path)
 
         pbar.set_description(f"Initializing data and threshold...")
-        y = jnp.asarray(ds_bm.t2m_max.values.squeeze())
+        y = ds_bm.t2m_max.squeeze()
         threshold = ds_station.t2m_max.quantile(q=0.95)
 
         pbar.set_description(f"Station ID: {istation_id} | Calculating Model...")
@@ -232,8 +234,7 @@ def run_experiment(seed: int=123):
         # calculate return period
         pbar.set_description(f"Station ID: {istation_id} | Plot Return Level...")
         plot_return_level_gevd(arxiv_summary=arxiv_summary, model=model, y=y, figures_save_dir=fig_save_path)
-        plot_return_level_hist(arxiv_summary=arxiv_summary, figures_save_dir=fig_save_path)
-            
+        plot_return_level_hist(arxiv_summary=arxiv_summary, figures_save_dir=fig_save_path)            
 
 if __name__ == '__main__':
     app()

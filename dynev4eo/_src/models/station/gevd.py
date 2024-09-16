@@ -7,6 +7,7 @@ import numpyro.distributions as dist
 import numpyro
 from dynev4eo._src.extremes.returns import estimate_return_level_gevd, calculate_rate
 from dynev4eo._src.extremes.math import calculate_sigma
+import xarray as xr
 
 from loguru import logger
 
@@ -18,24 +19,34 @@ class ProbGEVDIID(eqx.Module):
     concentration: dist.Distribution
     return_periods: Array
     threshold: Array
+    name: str
 
     @classmethod
-    def init_from_data(cls, y: Float[Array, "T"], location=None, scale=None, shape=None, threshold=None):
-        num_steps = y.shape[0]
+    def init_from_data(cls, y: xr.DataArray, location=None, scale=None, shape=None, threshold=None, verbose: bool=True):
+        
+        num_steps = y.time.shape[0]
+        
         # calculate initial statistics
         if location is None:
-            location = jnp.mean(y)
+            location = jnp.mean(y.values)
         if scale is None:
-            scale = jnp.std(y)
+            scale = jnp.std(y.values)
         if shape is None:
-            shape = 0.1 * kurtosis(y)
+            shape = 0.1 * kurtosis(y.values)
         if threshold is None:
-            threshold = y.min()
+            threshold = y.min().values
         shape = shape * jnp.ones_like(location)
-        logger.info(f"Location: {location:.2f}")
-        logger.info(f"Scale: {scale:.2f}")
-        logger.info(f"Kurtosis: {shape:.2f}")
-        logger.info(f"Threshold: {threshold:.2f}")
+        if y.name is not None:
+            name = y.name
+        else:
+            name = ""
+        
+        if verbose:
+            logger.info(f"Location: {location:.2f}")
+            logger.info(f"Scale: {scale:.2f}")
+            logger.info(f"Kurtosis: {shape:.2f}")
+            logger.info(f"Threshold: {threshold:.2f}")
+            logger.info(f"Variable Name: {name}")
         # initialize distributions
         # location = dist.Normal(location, scale)
         location = dist.Uniform(location - 10, location + 10)
@@ -52,6 +63,7 @@ class ProbGEVDIID(eqx.Module):
             concentration=concentration,
             threshold=threshold,
             return_periods=jnp.logspace(0.001, 3, 100),
+            name=name
         )
 
     def model(self, y: Float[Array, "T"]=None):

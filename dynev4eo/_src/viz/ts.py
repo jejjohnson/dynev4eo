@@ -2,6 +2,7 @@ from typing import Optional
 from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 sns.reset_defaults()
 sns.set_context(context="talk", font_scale=0.7)
 
@@ -43,7 +44,6 @@ def plot_ts_station_pot(ds_station, ds_pot, figures_save_dir: Optional[str]=None
         return fig, ax
 
     
-
 def plot_scatter_station(ds_bm, figures_save_dir: Optional[str]=None):
     fig, ax = plt.subplots(figsize=(10,5))
 
@@ -54,22 +54,43 @@ def plot_scatter_station(ds_bm, figures_save_dir: Optional[str]=None):
     )
     plt.tight_layout()
     if figures_save_dir:
-        fig.savefig(Path(figures_save_dir).joinpath(f"{ds_bm.station_id.values}_t2mmax_bm_scatter.png"))
+        fig.savefig(Path(figures_save_dir).joinpath(f"{ds_bm.station_id.values}_t2mmax_scatter.png"))
         plt.close()
     else:
         return fig, ax
     
 
-def plot_histogram_station(ds_bm, figures_save_dir: Optional[str]=None):
+def plot_histogram_station(ds, figures_save_dir: Optional[str]=None):
     fig, ax = plt.subplots()
-    ds_bm.t2m_max.plot.hist(ax=ax, bins=20, linewidth=4, density=False, fill=False)
+    ds.t2m_max.plot.hist(ax=ax, bins=20, linewidth=4, density=False, fill=False)
     ax.set(
         ylabel="Number of Observations",
-        title=f"{str(ds_bm.station_name.values).upper()}",
+        title=f"{str(ds.station_name.values).upper()}",
     )
     plt.tight_layout()
     if figures_save_dir:
-        fig.savefig(Path(figures_save_dir).joinpath(f"{ds_bm.station_id.values}_t2mmax_bm_hist.png"))
+        fig.savefig(Path(figures_save_dir).joinpath(f"{ds.station_id.values}_t2mmax_hist.png"))
+        plt.close()
+    else:
+        return fig, ax
+    
+    
+def plot_density_station(ds, figures_save_dir: Optional[str]=None):
+    fig, ax = plt.subplots()
+    ds.t2m_max.plot.hist(ax=ax, bins=20, linewidth=1, density=True, fill=False)
+    sns.kdeplot(
+        np.asarray(ds.t2m_max.values.ravel()), 
+        ax=ax,
+        color=f"black",
+        linewidth=5, label="KDE Fit"
+    )
+    ax.set(
+        ylabel="Number of Observations",
+        title=f"{str(ds.station_name.values).upper()}",
+    )
+    plt.tight_layout()
+    if figures_save_dir:
+        fig.savefig(Path(figures_save_dir).joinpath(f"{ds.station_id.values}_t2mmax_density.png"))
         plt.close()
     else:
         return fig, ax
